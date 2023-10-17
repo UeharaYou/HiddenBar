@@ -19,29 +19,29 @@ class StatusBarController {
     }
     
     private let masterToggle = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-    private let primarySeprator = NSStatusBar.system.statusItem(withLength: 0)
-    private let secondarySeprator = NSStatusBar.system.statusItem(withLength: 0)
+    private let primarySeparator = NSStatusBar.system.statusItem(withLength: 0)
+    private let secondarySeparator = NSStatusBar.system.statusItem(withLength: 0)
     private let updateLock = NSLock()
     private var autoCollapseTimer: Timer? = nil
     
-    private static let hiddenSepratorLength: CGFloat =  0
-    private static let normalSepratorLength: CGFloat =  10
-    private static let expandedSeperatorLength: CGFloat = 10000
+    private static let hiddenSeparatorLength: CGFloat =  0
+    private static let normalSeparatorLength: CGFloat =  10
+    private static let expandedSeparatorLength: CGFloat = 10000
 
-    public static func areSeperatorPositionValid () -> StatusBarValidity {
+    public static func areSeparatorPositionValid () -> StatusBarValidity {
         guard
             let toggleButtonX = instance.masterToggle.button?.getOrigin?.x,
-            let primarySepratorX = instance.primarySeprator.button?.getOrigin?.x,
-            let secondarySepratorX = instance.secondarySeprator.button?.getOrigin?.x
+            let primarySeparatorX = instance.primarySeparator.button?.getOrigin?.x,
+            let secondarySeparatorX = instance.secondarySeparator.button?.getOrigin?.x
         else {return .invalid}
         
         // all x will be all equal if applicationDidFinishLaunching have not returned, so we have to try again
-        if toggleButtonX == primarySepratorX && primarySepratorX == secondarySepratorX {return .onStartUp}
+        if toggleButtonX == primarySeparatorX && primarySeparatorX == secondarySeparatorX {return .onStartUp}
         
         if Global.isUsingLTRTypeSystem {
-            return (toggleButtonX > primarySepratorX && primarySepratorX > secondarySepratorX) ? .valid : .invalid
+            return (toggleButtonX > primarySeparatorX && primarySeparatorX > secondarySeparatorX) ? .valid : .invalid
         } else {
-            return (toggleButtonX < primarySepratorX && primarySepratorX < secondarySepratorX) ? .valid : .invalid
+            return (toggleButtonX < primarySeparatorX && primarySeparatorX < secondarySeparatorX) ? .valid : .invalid
         }
     }
 
@@ -76,17 +76,17 @@ class StatusBarController {
             button.image = Assets.collapseImage
         }
         
-        if let button = primarySeprator.button {
+        if let button = primarySeparator.button {
             button.image = Assets.seperatorImage
         }
         
-        if let button = secondarySeprator.button {
+        if let button = secondarySeparator.button {
             button.image = Assets.seperatorImage
             button.appearsDisabled = true
         }
         masterToggle.autosaveName = "hiddenbar_masterToggle";
-        primarySeprator.autosaveName = "hiddenbar_primarySeprator";
-        secondarySeprator.autosaveName = "hiddenbar_secondarySeprator";
+        primarySeparator.autosaveName = "hiddenbar_primarySeparator";
+        secondarySeparator.autosaveName = "hiddenbar_secondarySeparator";
         NSLog("Status bar controller inited.")
     }
     
@@ -94,8 +94,8 @@ class StatusBarController {
         ContextMenuController.setup()
         
         let masterToggle = instance.masterToggle,
-        primarySeprator = instance.primarySeprator,
-        secondarySeprator = instance.secondarySeprator
+        primarySeparator = instance.primarySeparator,
+        secondarySeparator = instance.secondarySeparator
         
         if let button = masterToggle.button {
             button.target = self
@@ -107,8 +107,8 @@ class StatusBarController {
         //masterToggle.menu = menu
         
         masterToggle.isVisible = true
-        primarySeprator.isVisible = true
-        secondarySeprator.isVisible = true
+        primarySeparator.isVisible = true
+        secondarySeparator.isVisible = true
 
         NotificationCenter.default.addObserver(forName: NotificationNames.prefsChanged, object: nil, queue: Global.mainQueue) {[] (notification) in
             triggerAdjustment()
@@ -119,7 +119,7 @@ class StatusBarController {
     }
     
     private static func triggerAdjustment() {
-        switch areSeperatorPositionValid() {
+        switch areSeparatorPositionValid() {
         case .onStartUp:
             Timer.scheduledTimer(withTimeInterval: TimeInterval(1), repeats: false) { _ in
                 // retry on more time after 1s
@@ -131,18 +131,18 @@ class StatusBarController {
             adjustStatusBar()
             adjustMenuBar()
         case .invalid:
-            resetSeperator()
+            resetSeparator()
         }
     }
     
-    private static func resetSeperator () {
+    private static func resetSeparator () {
         let masterToggle = instance.masterToggle,
-            primarySeprator = instance.primarySeprator,
-            secondarySeprator = instance.secondarySeprator,
+            primarySeparator = instance.primarySeparator,
+            secondarySeparator = instance.secondarySeparator,
             lock = instance.updateLock
         lock.lock(before: Date(timeIntervalSinceNow: 1))
-        primarySeprator.length = StatusBarController.normalSepratorLength
-        secondarySeprator.length = StatusBarController.normalSepratorLength
+        primarySeparator.length = StatusBarController.normalSeparatorLength
+        secondarySeparator.length = StatusBarController.normalSeparatorLength
         masterToggle.button?.image = Assets.expandImage
         masterToggle.button?.title = "Invalid".localized
         lock.unlock()
@@ -175,16 +175,16 @@ class StatusBarController {
     
     private static func adjustStatusBar () {
         let masterToggle = instance.masterToggle,
-            primarySeprator = instance.primarySeprator,
-            secondarySeprator = instance.secondarySeprator,
+            primarySeparator = instance.primarySeparator,
+            secondarySeparator = instance.secondarySeparator,
             lock = instance.updateLock
         
         lock.lock(before: Date(timeIntervalSinceNow: 1))
         if Preferences.isEditMode {
-            primarySeprator.length = StatusBarController.normalSepratorLength
-            //primarySeprator.isVisible = true
-            secondarySeprator.length = StatusBarController.normalSepratorLength
-            //secondarySeprator.isVisible = true
+            primarySeparator.length = StatusBarController.normalSeparatorLength
+            //primarySeparator.isVisible = true
+            secondarySeparator.length = StatusBarController.normalSeparatorLength
+            //secondarySeparator.isVisible = true
             masterToggle.button?.image = Assets.expandImage
             masterToggle.button?.title = "Edit".localized
             
@@ -192,26 +192,26 @@ class StatusBarController {
         else {
             switch Preferences.statusBarPolicy {
             case .fullExpand:
-                primarySeprator.length = StatusBarController.hiddenSepratorLength
-                //primarySeprator.isVisible = false
-                secondarySeprator.length = StatusBarController.hiddenSepratorLength
-                //secondarySeprator.isVisible = false
+                primarySeparator.length = StatusBarController.hiddenSeparatorLength
+                //primarySeparator.isVisible = false
+                secondarySeparator.length = StatusBarController.hiddenSeparatorLength
+                //secondarySeparator.isVisible = false
                 masterToggle.button?.image = Assets.expandImage
                 masterToggle.button?.title = ""
                 
             case .partialExpand:
-                primarySeprator.length = StatusBarController.hiddenSepratorLength
-                //primarySeprator.isVisible = false
-                secondarySeprator.length = StatusBarController.expandedSeperatorLength
-                //secondarySeprator.isVisible = true
+                primarySeparator.length = StatusBarController.hiddenSeparatorLength
+                //primarySeparator.isVisible = false
+                secondarySeparator.length = StatusBarController.expandedSeparatorLength
+                //secondarySeparator.isVisible = true
                 masterToggle.button?.image = Assets.expandImage
                 masterToggle.button?.title = ""
                 
             case .collapsed:
-                primarySeprator.length = StatusBarController.expandedSeperatorLength
-                //primarySeprator.isVisible = true
-                secondarySeprator.length = StatusBarController.expandedSeperatorLength
-                //secondarySeprator.isVisible = true
+                primarySeparator.length = StatusBarController.expandedSeparatorLength
+                //primarySeparator.isVisible = true
+                secondarySeparator.length = StatusBarController.expandedSeparatorLength
+                //secondarySeparator.isVisible = true
                 masterToggle.button?.image = Assets.collapseImage
                 masterToggle.button?.title = ""
                 

@@ -64,6 +64,7 @@ class ContextMenuController {
     }
     
     public static func showContextMenu(_ sender: NSStatusBarButton) {
+        instance.contextMenu.appearance = NSApp.effectiveAppearance
         instance.contextMenu.popUp(positioning: nil, at: .init(x: sender.bounds.minX, y: sender.bounds.minY), in: sender)
     }
     
