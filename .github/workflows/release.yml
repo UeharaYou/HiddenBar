@@ -10,7 +10,7 @@ jobs:
   build_and_release:
     permissions:
       contents: write
-    runs-on: macos-13 # macOS-latest is still macos-12
+    runs-on: macos-11 # macOS-latest is still macos-12
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
