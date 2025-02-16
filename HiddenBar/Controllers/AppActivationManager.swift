@@ -58,14 +58,14 @@ class AppActivationManager {
         // Handle App Activation
         switch (previousActivationPolicy, NSApp.activationPolicy()) {
         case (.accessory, .regular):
-            if #available(macOS 14.0, *) {
-                if (shouldActiveIgnoringOtherApp && !NSApp.isActive) {
-                    NSApp.activate()
-                }
-            }
-            else {
+//            if #available(macOS 14.0, *) {
+//                if (shouldActiveIgnoringOtherApp && !NSApp.isActive) {
+//                    NSApp.activate()
+//                }
+//            }
+//            else {
                 NSApp.activate(ignoringOtherApps: shouldActiveIgnoringOtherApp)
-            }
+//            }
         case (.regular, .accessory):
             if (NSApp.isActive) {
                 NSApp.deactivate()
